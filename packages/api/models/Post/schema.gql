@@ -1,0 +1,359 @@
+enum PostType {
+  ARTICLE
+  GIVE
+  ASK
+  GAB
+  OTHER
+}
+
+enum TakeTime {
+  QUARTER
+  HALF
+  HOUR
+  MOREHOURS
+}
+enum TimeFrame {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  ASAP
+  ANYTIME
+}
+
+enum ContactMethod {
+  CALL
+  TEXT
+  APPCHAT
+}
+
+enum PostStatus {
+  DRAFT
+  ARCHIVED
+  ACTIVE
+  DELETE
+  EXPIRE
+}
+
+enum ArticleType {
+  WORLD
+  INSPIRING
+  ANIMALS
+  HEALTH
+}
+
+interface Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  status: PostStatus
+  order: Int
+}
+
+type Article implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  link: String
+  articleType: ArticleType
+}
+
+type Gab implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+}
+
+type Ask implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  "Ask"
+  take_time: TakeTime
+  time_frame: TimeFrame
+
+  location: Location
+}
+
+type Give implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  "Act as category"
+  tags: [Tag]
+  contact_method: ContactMethod
+}
+
+type Notification implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Act as category"
+  tags: [Tag]
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+
+  bookmarked: Boolean
+
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Query this to filter notifications"
+  dismissed: Boolean
+
+  status: PostStatus
+}
+
+input PostQuery {
+  _id: ObjectId
+  slug: String
+  user: ObjectId
+  type: [PostType]
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+  published_at: DateTimeQuery
+  tags: [ObjectId]
+  viewed: Boolean
+  liked: Boolean
+  bookmarked: Boolean
+
+  "Notificaton Only"
+  dismissed: Boolean
+
+  "Article Only"
+  articleType: [ArticleType]
+}
+
+input PostSort {
+  created_at: Int
+  updated_at: Int
+  published_at: Int
+}
+
+input CreatePostInput {
+  title: String
+  body: String
+  slug: String
+  type: PostType!
+  user: String
+  published_at: DateTime
+  tags: [ObjectId]
+  media: [PostMediaInput]
+  pushTitle: String
+  pushBody: String
+  take_time: TakeTime
+  time_frame: TimeFrame
+  contact_method: ContactMethod
+  status: PostStatus
+}
+
+input OrderInput {
+  _id: ObjectId
+  isUp: Boolean
+  type: PostType
+}
+
+input UpdatePostInput {
+  title: String
+  body: String
+  media: [PostMediaInput]
+  tags: [ObjectId]
+  pushTitle: String
+  pushBody: String
+  take_time: TakeTime
+  time_frame: TimeFrame
+  contact_method: ContactMethod
+  status: PostStatus
+}
+
+type UpdatePostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  post: Post
+}
+
+type DeletePostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+type OrderPostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  posts: [Post]
+}
+
+extend type Query {
+  "Any posts of any type, by any common params. Diary Entries are only visible to the user"
+  posts(query: PostQuery, limit: Int, skip: Int, sort: PostSort): [Post]
+  myPosts(query: PostQuery, limit: Int, skip: Int, sort: PostSort): [Post]
+  "Post by _id. Optimization over general query"
+  post(_id: ObjectId): Post
+  "Useful for pagination"
+  countPosts(query: PostQuery): Int
+}
+
+extend type Mutation {
+  updatePost(_id: ObjectId!, update: UpdatePostInput!): UpdatePostResponse
+  createPost(post: CreatePostInput!): UpdatePostResponse
+  deletePost(_id: ObjectId!): DeletePostResponse
+  reOrder(order: OrderInput): OrderPostResponse
+  manualFetchNews: Boolean
+}

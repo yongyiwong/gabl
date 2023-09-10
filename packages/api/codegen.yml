@@ -1,0 +1,12 @@
+overwrite: true
+schema: "./schema.gql"
+require:
+  - ts-node/register
+generates:
+  ../shared/types.ts:
+    schema: './schema.gql'
+    plugins:
+      - typescript
+hooks:
+  afterAllFileWrite:
+    - npx prettier --write

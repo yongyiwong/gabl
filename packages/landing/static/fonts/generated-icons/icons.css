@@ -1,0 +1,44 @@
+@font-face {
+    font-family: "icons";
+    src: url("/fonts/generated-icons/icons.eot?ac5df0cb6428b8d9621c6d1e4dcc6306?#iefix") format("embedded-opentype"),
+url("/fonts/generated-icons/icons.woff2?ac5df0cb6428b8d9621c6d1e4dcc6306") format("woff2"),
+url("/fonts/generated-icons/icons.woff?ac5df0cb6428b8d9621c6d1e4dcc6306") format("woff"),
+url("/fonts/generated-icons/icons.ttf?ac5df0cb6428b8d9621c6d1e4dcc6306") format("truetype"),
+url("/fonts/generated-icons/icons.svg?ac5df0cb6428b8d9621c6d1e4dcc6306#icons") format("svg");
+}
+
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+    font-family: icons !important;
+    font-style: normal;
+    font-weight: normal !important;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-facebook:before {
+    content: "\f101";
+}
+.icon-instagram:before {
+    content: "\f102";
+}
+.icon-linkedin:before {
+    content: "\f103";
+}
+.icon-mail:before {
+    content: "\f104";
+}
+.icon-messenger:before {
+    content: "\f105";
+}
+.icon-quote:before {
+    content: "\f106";
+}
+.icon-quotes:before {
+    content: "\f107";
+}
+.icon-upwork:before {
+    content: "\f108";
+}

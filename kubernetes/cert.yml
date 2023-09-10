@@ -1,0 +1,36 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gabl-tls
+  namespace: gabl-ingress
+spec:
+  # Secret names are always required.
+  secretName: gabl-tls
+  subject:
+    organizations:
+      - synapps.agency
+  # At least one of a DNS Name, URI, or IP address is required.
+  dnsNames:
+    - 'gabl.global'
+    - 'www.gabl.global'
+    - 'api.gabl.global'
+    - 'admin.gabl.global'
+    - 'media.gabl.global'
+    - 'stage-api.gabl.global'
+    - 'stage-admin.gabl.global'
+  # Issuer references are always required.
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  # acme:
+  #   config:
+  #   - http01:
+  #       ingressClass: nginx
+  #     domains:
+  #       - 'gabl.app'
+  #       - 'www.gabl.app'
+  #       - 'api.gabl.app'
+  #       - 'admin.gabl.app'
+  #       - 'media.gabl.app'
+  #       - 'stage-api.gabl.app'
+  #       - 'stage-admin.gabl.app'

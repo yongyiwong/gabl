@@ -1,0 +1,57 @@
+@font-face {
+  font-family: "icons";
+  src: url("/fonts/generated-icons/icons.eot?bffd6f34fbd87377150ab5c91c64f204?#iefix") format("embedded-opentype"),
+url("/fonts/generated-icons/icons.woff2?bffd6f34fbd87377150ab5c91c64f204") format("woff2"),
+url("/fonts/generated-icons/icons.woff?bffd6f34fbd87377150ab5c91c64f204") format("woff"),
+url("/fonts/generated-icons/icons.ttf?bffd6f34fbd87377150ab5c91c64f204") format("truetype"),
+url("/fonts/generated-icons/icons.svg?bffd6f34fbd87377150ab5c91c64f204#icons") format("svg");
+}
+
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+  display: inline-block;
+
+  font-family: icons !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+i[class^="icon-"], i[class*=" icon-"],
+i[class^="icon-"]:before, i[class*=" icon-"]:before {
+  height: 1em;
+}
+
+.icon-facebook:before {
+  content: "\f101";
+}
+.icon-instagram:before {
+  content: "\f102";
+}
+.icon-linkedin:before {
+  content: "\f103";
+}
+.icon-mail:before {
+  content: "\f104";
+}
+.icon-messenger:before {
+  content: "\f105";
+}
+.icon-quote:before {
+  content: "\f106";
+}
+.icon-quotes:before {
+  content: "\f107";
+}
+.icon-upwork:before {
+  content: "\f108";
+  transform: scale(1.25);
+}
+
+.icon-linkedin {
+  position: relative;
+  top: -1px;
+}

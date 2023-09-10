@@ -1,0 +1,81 @@
+version: '3'
+services:
+  mongo:
+    image: bitnami/mongodb:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo_data:/bitnami/mongodb
+    environment:
+      - MONGODB_USERNAME=gabl
+      - MONGODB_PASSWORD=gabl
+      - MONGODB_DATABASE=gabl-dev
+      - MONGODB_ROOT_PASSWORD=TX5tDDdD2h7CnYyg
+  # api:
+  #   build:
+  #     context: packages/api
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - PORT=3000
+  #     - NODE_ENV=production
+  #     - MONGODB_URI
+  #     - FIREBASE_CONFIG
+  #     - UPLOADS_CONTAINER
+  #     - STORAGE_ACCOUNT_NAME
+  #     - STORAGE_KEY
+  #     - API_KEY
+  #     - CDN_URL
+
+  # landing:
+  #   build:
+  #     context: packages/landing
+  #   ports:
+  #     - "3004:3000"
+  #   environment:
+  #     - PORT=3000
+  #     - NODE_ENV=production
+
+  # media:
+  #   build:
+  #     context: packages/media-service
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - PORT=3000
+  #     - NODE_ENV=production
+  #     - MONGODB_URI
+  #     - FIREBASE_CONFIG
+  #     - UPLOADS_CONTAINER
+  #     - STORAGE_ACCOUNT_NAME
+  #     - STORAGE_KEY
+  #     - API_KEY
+  #     - CDN_URL
+
+  # admin:
+  #   build:
+  #     context: packages/admin
+  #     args:
+  #       - PORT=3000
+  #       - NODE_ENV
+  #       - API_URL
+  #       - WEB_URL
+  #       - CDN_URL
+  #       - MEDIASERVICE_URL
+  #       - STATIC_URL
+  #       - STORAGE_URL
+  #       - UPLOADS_CONTAINER
+  #       - STATIC_CONTAINER
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - PORT=3000
+  #     - NODE_ENV
+  #     - API_URL
+  #     - WEB_URL
+  #     - CDN_URL
+  #     - STATIC_URL
+  #     - STORAGE_URL
+  #     - MEDIASERVICE_URL
+  #     - UPLOADS_CONTAINER
+  #     - STATIC_CONTAINER

@@ -1,0 +1,975 @@
+scalar ObjectId
+scalar DateTime
+
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+input DateTimeQuery {
+  lt: DateTime
+  gt: DateTime
+  lte: DateTime
+  gte: DateTime
+}
+
+enum MediaType {
+  AUDIO
+  VIDEO
+  PICTURE
+  DOC
+}
+
+type PostMedia {
+  type: MediaType!
+  src: String!
+  filename: String
+  "VIDEO: WebM Processed file path. This should be used on all platforms where WebM is supported"
+  webm: String
+  "VIDEO: duration in seconds, provided by ffprobe"
+  duration: Float
+  "VIDEO: 320x240 thumb. Very small, for lists"
+  thumbSmall: String
+  "VIDEO: 1920x1080 thumb"
+  thumbLarge: String
+}
+
+input PostMediaInput {
+  type: MediaType!
+  src: String!
+  filename: String
+  webm: String
+  duration: Float
+  thumbSmall: String
+  thumbLarge: String
+}
+
+type Query {
+  ping: String
+}
+
+type Mutation {
+  ping: String
+}
+type Bookmark {
+  _id: ObjectId
+  post: Post
+  user: User
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input BookmarkQuery {
+  user: ObjectId
+}
+
+input CreateDeleteBookmarkInput {
+  "Admins don't control user bookmarks 🙃 Thus, every Bookmarks mutation affects only current user"
+  post: ObjectId
+}
+
+type CreateBookmarkResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  bookmark: Bookmark
+}
+
+type DeleteBookmarkResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  bookmark: Bookmark
+}
+
+extend type Query {
+  bookmarks(query: BookmarkQuery): [Bookmark]
+}
+
+extend type Mutation {
+  createBookmark(bookmark: CreateDeleteBookmarkInput!): CreateBookmarkResponse
+  deleteBookmark(bookmark: CreateDeleteBookmarkInput!): DeleteBookmarkResponse
+}
+type Comment {
+  _id: ObjectId
+  user: User
+  post: Post
+  body: String
+  likes: Int
+  liked: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input CommentQuery {
+  _id: ObjectId
+  user: ObjectId
+  post: ObjectId
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input CommentSort {
+  created_at: Int
+  updated_at: Int
+}
+
+input CreateCommentInput {
+  body: String!
+  post: ObjectId
+}
+
+input UpdateCommentInput {
+  likes: Int
+}
+
+type CreateUpdateCommentResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  comment: Comment
+}
+
+extend type Query {
+  "Any comments of any type, by any common params. Diary Entries are only visible to the user"
+  comments(
+    query: CommentQuery
+    limit: Int
+    skip: Int
+    sort: CommentSort
+  ): [Comment]
+  countComments(query: CommentQuery): Int
+}
+
+extend type Mutation {
+  updateComment(
+    _id: ObjectId!
+    update: UpdateCommentInput!
+  ): CreateUpdateCommentResponse
+  createComment(comment: CreateCommentInput!): CreateUpdateCommentResponse
+  deleteComment(_id: ObjectId!): CreateUpdateCommentResponse
+}
+enum ConversationStatusType {
+  ACTIVE
+  REMOVED
+}
+
+type Participant {
+  accountSid: String
+  conversationSid: String
+  sid: String
+  identity: String
+  roleSid: String
+  lastReadMessageIndex: Int
+  lastReadTimestamp: String
+  url: String
+  dateCreated: DateTime
+  dateUpdated: DateTime
+}
+type ConversationUser {
+  userId: String
+  participantId: String
+}
+type Conversation {
+  _id: ObjectId
+  users: [ConversationUser]
+  post: Post
+  owner: User
+  conversationId: String
+  participants: [Participant]
+  status: ConversationStatusType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input ConversationQuery {
+  _id: ObjectId
+  post: ObjectId
+  conversationId: String
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+extend type Query {
+  myConversations: [Conversation]
+  conversation(_id: ObjectId!): Conversation
+  conversations(query: ConversationQuery): [Conversation]
+}
+
+input CreateConversationInput {
+  post: ObjectId
+  status: ConversationStatusType
+}
+
+type CreateConversationResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  conversation: Conversation
+}
+
+input DeleteParticipantInput {
+  user: ObjectId!
+  post: ObjectId
+  conversationId: String
+}
+
+extend type Mutation {
+  deleteParticipant(
+    participant: DeleteParticipantInput!
+  ): CreateConversationResponse
+}
+enum EventObjectType {
+  POST_LIKE
+  POST_VIEW
+  COMMENT_LIKE
+  NOTIFICATION_DISMISSED
+  CUSTOM
+}
+
+interface Event {
+  _id: ObjectId
+  user: User
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type PostLike implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type PostView implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type CommentLike implements Event {
+  _id: ObjectId
+  user: User
+  comment: Comment
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type NotificationDismissed implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type CustomEvent implements Event {
+  _id: ObjectId
+  user: User
+  data: String
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input EventQuery {
+  _id: ObjectId
+  user: ObjectId
+  post: ObjectId
+  comment: ObjectId
+  type: EventObjectType
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input CreateDeleteEventInput {
+  _id: ObjectId
+  type: EventObjectType
+  post: ObjectId
+  comment: ObjectId
+  "For progress events"
+  progress: Int
+  "JSON string or whatever you want to put here"
+  data: String
+}
+
+type CreateEventResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  event: Event
+}
+
+type DeleteEventResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  event: Event
+}
+
+extend type Query {
+  events(query: EventQuery): [Event]
+}
+
+extend type Mutation {
+  createEvent(event: CreateDeleteEventInput!): CreateEventResponse
+  deleteEvent(event: CreateDeleteEventInput!): DeleteEventResponse
+}
+type FirebaseError {
+  code: String!
+  message: String!
+  stack: String
+}
+
+type FirebaseArrayIndexError {
+  error: FirebaseError!
+  index: Int!
+}
+
+type MessagingTopicManagementResponse {
+  errors: [FirebaseArrayIndexError]
+  failureCount: Int
+  successCount: Int
+}
+
+type SubscribeRespose implements MutationResponse {
+  code: String!
+  success: Boolean!
+
+  message: String
+  firebaseResponse: MessagingTopicManagementResponse
+}
+
+extend type Mutation {
+  "Subscribe device token to all notifications"
+  subscribe(tokens: [String], resubscribe: Boolean): SubscribeRespose
+  unsubscribe(tokens: [String]): SubscribeRespose
+}
+enum OrderStatus {
+  REQUEST
+  ACCEPT
+  REJECT
+  WITHDRAW
+  COMPLETE
+  EXPIRE
+}
+
+type Order {
+  _id: ObjectId
+  owner: User
+  post: Post
+  user: User
+  body: String
+  status: OrderStatus
+}
+
+input OrderQuery {
+  _id: ObjectId
+  post: ObjectId
+  body: String
+  status: OrderStatus
+}
+
+input CreateOrderInput {
+  post: ObjectId
+  body: String
+  status: OrderStatus
+}
+
+input UpdateOrderInput {
+  _id: ObjectId
+  status: OrderStatus
+}
+
+type CreateUpdateOrderResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  order: Order
+}
+
+input OrderSort {
+  created_at: Int
+}
+
+type DeleteOrderResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+extend type Query {
+  orders(query: OrderQuery, limit: Int, skip: Int, sort: OrderSort): [Order]
+  myOrders(query: OrderQuery, limit: Int, skip: Int, sort: OrderSort): [Order]
+  order(_id: ObjectId!): Order
+  "Useful for pagination"
+  countOrders(query: OrderQuery): Int
+}
+
+extend type Mutation {
+  updateOrder(
+    _id: ObjectId!
+    update: UpdateOrderInput!
+  ): CreateUpdateOrderResponse
+  createOrder(order: CreateOrderInput!): CreateUpdateOrderResponse
+  deleteOrder(_id: ObjectId!): DeleteOrderResponse
+  manualExpire: Boolean
+}
+enum PostType {
+  ARTICLE
+  GIVE
+  ASK
+  GAB
+  OTHER
+}
+
+enum TakeTime {
+  QUARTER
+  HALF
+  HOUR
+  MOREHOURS
+}
+enum TimeFrame {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  ASAP
+  ANYTIME
+}
+
+enum ContactMethod {
+  CALL
+  TEXT
+  APPCHAT
+}
+
+enum PostStatus {
+  DRAFT
+  ARCHIVED
+  ACTIVE
+  DELETE
+  EXPIRE
+}
+
+enum ArticleType {
+  WORLD
+  INSPIRING
+  ANIMALS
+  HEALTH
+}
+
+interface Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  status: PostStatus
+  order: Int
+}
+
+type Article implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  link: String
+  articleType: ArticleType
+}
+
+type Gab implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+}
+
+type Ask implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  "Ask"
+  take_time: TakeTime
+  time_frame: TimeFrame
+
+  location: Location
+}
+
+type Give implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+  bookmarked: Boolean
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Feedbacks"
+  likes: Int
+  liked: Boolean
+  comments: [Comment]
+  comments_count: Int
+
+  "Attach any number of media"
+  media: [PostMedia]
+  "Video progress in seconds"
+  videoProgress: Int
+
+  status: PostStatus
+
+  "Act as category"
+  tags: [Tag]
+  contact_method: ContactMethod
+}
+
+type Notification implements Post {
+  _id: ObjectId
+  title: String
+  slug: String
+  body: String
+  user: User
+  type: PostType
+  created_at: DateTime
+  updated_at: DateTime
+  "For admin scheduling future posts"
+  published_at: DateTime
+
+  "Act as category"
+  tags: [Tag]
+
+  "Number of views"
+  views: Int
+  "Viewed by current user"
+  viewed: Boolean
+
+  bookmarked: Boolean
+
+  order: Int
+
+  "Notification"
+  pushTitle: String
+  pushBody: String
+
+  "Query this to filter notifications"
+  dismissed: Boolean
+
+  status: PostStatus
+}
+
+input PostQuery {
+  _id: ObjectId
+  slug: String
+  user: ObjectId
+  type: [PostType]
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+  published_at: DateTimeQuery
+  tags: [ObjectId]
+  viewed: Boolean
+  liked: Boolean
+  bookmarked: Boolean
+
+  "Notificaton Only"
+  dismissed: Boolean
+
+  "Article Only"
+  articleType: [ArticleType]
+}
+
+input PostSort {
+  created_at: Int
+  updated_at: Int
+  published_at: Int
+}
+
+input CreatePostInput {
+  title: String
+  body: String
+  slug: String
+  type: PostType!
+  user: String
+  published_at: DateTime
+  tags: [ObjectId]
+  media: [PostMediaInput]
+  pushTitle: String
+  pushBody: String
+  take_time: TakeTime
+  time_frame: TimeFrame
+  contact_method: ContactMethod
+  status: PostStatus
+}
+
+input OrderInput {
+  _id: ObjectId
+  isUp: Boolean
+  type: PostType
+}
+
+input UpdatePostInput {
+  title: String
+  body: String
+  media: [PostMediaInput]
+  tags: [ObjectId]
+  pushTitle: String
+  pushBody: String
+  take_time: TakeTime
+  time_frame: TimeFrame
+  contact_method: ContactMethod
+  status: PostStatus
+}
+
+type UpdatePostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  post: Post
+}
+
+type DeletePostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+type OrderPostResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  posts: [Post]
+}
+
+extend type Query {
+  "Any posts of any type, by any common params. Diary Entries are only visible to the user"
+  posts(query: PostQuery, limit: Int, skip: Int, sort: PostSort): [Post]
+  myPosts(query: PostQuery, limit: Int, skip: Int, sort: PostSort): [Post]
+  "Post by _id. Optimization over general query"
+  post(_id: ObjectId): Post
+  "Useful for pagination"
+  countPosts(query: PostQuery): Int
+}
+
+extend type Mutation {
+  updatePost(_id: ObjectId!, update: UpdatePostInput!): UpdatePostResponse
+  createPost(post: CreatePostInput!): UpdatePostResponse
+  deletePost(_id: ObjectId!): DeletePostResponse
+  reOrder(order: OrderInput): OrderPostResponse
+  manualFetchNews: Boolean
+}
+type Tag {
+  _id: ObjectId
+  slug: String
+  displayName: String
+  order: Int
+  created_at: DateTime
+  updated_at: DateTime
+  posts: [Post]
+}
+
+input TagQuery {
+  _id: ObjectId
+  slug: String
+  all: Boolean
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input TagSort {
+  created_at: Int
+}
+
+input CreateTagInput {
+  slug: String
+  displayName: String
+  order: Int
+}
+
+type CreateTagResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  tag: Tag
+}
+
+extend type Query {
+  tags(query: TagQuery, limit: Int, skip: Int, sort: TagSort): [Tag]
+}
+
+extend type Mutation {
+  createTag(tag: CreateTagInput!): CreateTagResponse
+  deleteTag(_id: ObjectId): CreateTagResponse
+}
+enum UserRole {
+  ADMIN
+  USER
+}
+
+type Location {
+  type: String!
+  coordinates: [Float]!
+}
+
+type User {
+  _id: ObjectId
+  firebaseId: String
+  blocked: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+  email: String
+  picture: PostMedia
+  fullname: String
+  username: String
+  providerType: String
+  role: UserRole
+  comments: [Comment]
+  bookmarks: [Bookmark]
+  tags: [String]
+  bio: String
+  phoneNumber: TwilioLookupResponse
+  phoneVerified: Boolean
+  signupMethod: String
+  verficationId: PostMedia
+  verifiedId: Boolean
+
+  fcmTokens: [String]
+  point: Int
+  location: Location
+}
+
+input UserQuery {
+  _id: ObjectId
+  firebaseId: String
+  email: String
+  username: String
+  role: [UserRole]
+  search_txt: String
+}
+
+input UserSort {
+  created_at: Int
+  updated_at: Int
+}
+
+type TwilioServiceResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+input LocationInput {
+  type: String
+  coordinates: [Float]!
+}
+
+input CreateUserInput {
+  firebaseId: String
+  providerType: String
+  "fullname is now reqired because of Stripe"
+  fullname: String!
+  username: String
+  email: String
+  bio: String
+  picture: PostMediaInput
+  role: UserRole
+  password: String
+  tags: [String]
+  phoneNumber: String
+  verifiedId: Boolean
+  location: LocationInput
+}
+
+input UpdateUserInput {
+  email: String
+  fullname: String
+  username: String
+  providerType: String
+  picture: PostMediaInput
+  role: UserRole
+  bio: String
+  blocked: Boolean
+  password: String
+  tags: [String]
+  phoneNumber: String
+  verficationId: PostMediaInput
+  verifiedId: Boolean
+  location: LocationInput
+}
+
+type UpdateUserResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  user: User
+}
+
+extend type Query {
+  "Get current user"
+  me: User
+  "Get a list of Users"
+  users(query: UserQuery, limit: Int, skip: Int, sort: UserSort): [User]
+  countUsers(query: UserQuery): Int
+  user(_id: ObjectId): User
+  "Get Coaches that can be Article Authors"
+  authors: [User]
+  "Request phone verification code for current user"
+  requestVerifyPhone: MutationResponse
+  nearByUserCount: Int
+}
+
+extend type Mutation {
+  "Update the User. Allowed props are currently `fullname`, `username` and `picture` as per design requirements."
+  updateUser(_id: ObjectId!, update: UpdateUserInput!): UpdateUserResponse
+  "Create a User. Don't know much about Firebase Auth and how user it is handled. I imagine that it needs to be mirrored here in DB to link it to Posts and Quizzes and all that stuff"
+  createUser(user: CreateUserInput): UpdateUserResponse
+}
+type GetSASResponse {
+  sas: String!
+}
+
+extend type Query {
+  getSAS(blobName: String!, contentType: String!): GetSASResponse
+}
+type TwilioLookupCarrier {
+  errorCode: String
+  mobileCountryCode: String
+  mobileNetworkCode: String
+  name: String
+  type: String
+}
+
+type TwilioLookupResponse {
+  callerName: String
+  carrier: TwilioLookupCarrier
+  countryCode: String
+  nationalFormat: String
+  phoneNumber: String
+  addOns: String
+  url: String
+}

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: admin-stage
+  name: admin-stage
+  namespace: gabl-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: admin-stage
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.21.0 ()
+      labels:
+        app: admin-stage
+    spec:
+      containers:
+        - env:
+          - name: NODE_ENV
+            value: production
+          - name: STATIC_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: STATIC_CONTAINER
+                name: gabl-stage
+          - name: UPLOADS_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: UPLOADS_CONTAINER
+                name: gabl-stage
+          - name: STORAGE_ACCOUNT_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: STORAGE_ACCOUNT_NAME
+                name: gabl-stage
+          image: gabldock.azurecr.io/gabl_admin:v0.0.0
+          name: admin-stage
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "160M"
+              cpu: "150m"
+            limits:
+              memory: "250M"
+              cpu: "200m"
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: admin-stage
+  name: admin-stage
+  namespace: gabl-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: admin-stage
+status:
+  loadBalancer: {}

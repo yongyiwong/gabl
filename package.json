@@ -1,0 +1,58 @@
+{
+  "name": "gabl",
+  "version": "1.0.0",
+  "description": "Monorepo for GABL App backend and web.",
+  "main": "index.js",
+  "author": "Yurii Sichkovskiy <filingr000ve@gmail.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=14",
+    "npm": "8.6.0"
+  },
+  "workspaces": [
+    "packages/api",
+    "packages/admin",
+    "packages/media-service",
+    "packages/landing"
+  ],
+  "scripts": {
+    "api:dev": "cp .env ./packages/api/.env && cp -r ./cert ./packages/api && cp ./firebase-config.json ./packages/api/config/firebase-config.json && yarn workspace @synappsagency/gabl-api start",
+    "api:build": "cp .env ./packages/api/.env && cp -r ./cert ./packages/api && cp ./firebase-config.json ./packages/api/config/firebase-config.json && yarn workspace @synappsagency/gabl-api build",
+    "api:gen": "yarn workspace @synappsagency/gabl-api gen",
+    "api:script": "cp .env ./packages/api/.env && cp -r ./cert ./packages/api && cp ./firebase-config.json ./packages/api/config/firebase-config.json && yarn workspace @synappsagency/gabl-api start:script",
+    "landing:dev": "cp .env ./packages/landing/.env && cp -r ./cert ./packages/landing && yarn workspace @synappsagency/gabl-landing start",
+    "media:dev": "cp .env ./packages/media-service/.env && cp -r ./cert ./packages/media-service && cp ./firebase-config.json ./packages/media-service/config/firebase-config.json && yarn workspace @synappsagency/gabl-media-service start",
+    "seed": "cp .env ./packages/api/.env && yarn workspace @synappsagency/gabl-api seed",
+    "api:helper": "cp .env ./packages/api/.env && yarn workspace @synappsagency/gabl-api helper",
+    "admin:dev": "cp .env ./packages/admin/.env && cp -r ./cert ./packages/admin && cp ./packages/shared/types.ts ./packages/admin/shared/types.ts && yarn workspace @synappsagency/gabl-admin dev",
+    "admin:build": "cp .env ./packages/admin/.env && yarn workspace @synappsagency/gabl-admin build",
+    "admin:start": "cp .env ./packages/admin/.env && yarn workspace @synappsagency/gabl-admin start",
+    "landing:build": "cp .env ./packages/landing/.env && yarn workspace @synappsagency/gabl-landing build",
+    "landing:start": "cp .env ./packages/landing/.env && yarn workspace @synappsagency/gabl-landing start",
+    "env:local": "cat .secret.env .local.env > .env",
+    "env:stage": "cat .secret.env .stage.env > .env",
+    "env:prod": "cat .secret.env .prod.env > .env",
+    "env:up": "sudo docker-compose up mongo",
+    "env:down": "sudo docker-compose down"
+  },
+  "resolutions": {
+    "@types/react": "16.14.0",
+    "firebase": "8.9.1"
+  },
+  "lint-staged": {
+    "*.(js|jsx|ts|tsx)": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "devDependencies": {
+    "@graphql-codegen/typescript": "^2.7.3",
+    "@graphql-codegen/typescript-document-nodes": "^2.3.3"
+  }
+}

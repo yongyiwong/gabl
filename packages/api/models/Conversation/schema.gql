@@ -1,0 +1,70 @@
+enum ConversationStatusType {
+  ACTIVE
+  REMOVED
+}
+
+type Participant {
+  accountSid: String
+  conversationSid: String
+  sid: String
+  identity: String
+  roleSid: String
+  lastReadMessageIndex: Int
+  lastReadTimestamp: String
+  url: String
+  dateCreated: DateTime
+  dateUpdated: DateTime
+}
+type ConversationUser {
+  userId: String
+  participantId: String
+}
+type Conversation {
+  _id: ObjectId
+  users: [ConversationUser]
+  post: Post
+  owner: User
+  conversationId: String
+  participants: [Participant]
+  status: ConversationStatusType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input ConversationQuery {
+  _id: ObjectId
+  post: ObjectId
+  conversationId: String
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+extend type Query {
+  myConversations: [Conversation]
+  conversation(_id: ObjectId!): Conversation
+  conversations(query: ConversationQuery): [Conversation]
+}
+
+input CreateConversationInput {
+  post: ObjectId
+  status: ConversationStatusType
+}
+
+type CreateConversationResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  conversation: Conversation
+}
+
+input DeleteParticipantInput {
+  user: ObjectId!
+  post: ObjectId
+  conversationId: String
+}
+
+extend type Mutation {
+  deleteParticipant(
+    participant: DeleteParticipantInput!
+  ): CreateConversationResponse
+}

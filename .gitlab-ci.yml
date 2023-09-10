@@ -1,0 +1,170 @@
+stages:
+  - build
+  - deploy
+
+build-landing:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd packages/landing
+    - cp $NPMRC ./.npmrc
+    - docker pull "$CI_REGISTRY/gabl_landing:latest" || true
+    - docker build --pull --cache-from "$CI_REGISTRY/gabl_landing:latest" -t "$CI_REGISTRY/gabl_landing:v-$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY/gabl_landing:latest" .
+    - docker push --all-tags "$CI_REGISTRY/gabl_landing"
+
+deploy-landing:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  dependencies:
+    - build-landing
+  script:
+    - kubectl config use-context synapps1/gabl-backend:gabl-agent
+    - sed -i'.bak' "s/\(image\:.*:v\).*/\1-$CI_COMMIT_SHORT_SHA/" ./kubernetes/landing-prod.yml
+    - kubectl apply -f ./kubernetes/landing-prod.yml
+
+build-api-stage:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd packages/api
+    - cp $FIREBASE_CONFIG ./config/firebase-config.json
+    - docker pull "$CI_REGISTRY/gabl_api:latest-stage" || true
+    - docker build --pull --cache-from "$CI_REGISTRY/gabl_api:latest-stage" -t "$CI_REGISTRY/gabl_api:v-$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY/gabl_api:latest-stage" .
+    - docker push --all-tags "$CI_REGISTRY/gabl_api"
+
+deploy-api-stage:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  dependencies:
+    - build-api-stage
+  script:
+    - kubectl config use-context synapps1/gabl-backend:gabl-agent
+    - sed -i'.bak' "s/\(image\:.*:v\).*/\1-$CI_COMMIT_SHORT_SHA/" ./kubernetes/api-stage.yml
+    - kubectl apply -f ./kubernetes/api-stage.yml
+
+build-admin-stage:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  # Use the official docker image.
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd packages/admin
+    - cp $STAGE_ENV_NEXT ./.env
+    - docker pull "$CI_REGISTRY/gabl_admin:latest-stage" || true
+    - docker build --pull --cache-from "$CI_REGISTRY/gabl_admin:latest-stage" -t "$CI_REGISTRY/gabl_admin:v-$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY/gabl_admin:latest-stage" .
+    - docker build -t "$CI_REGISTRY/gabl_admin:v-$CI_COMMIT_SHORT_SHA" -t "$CI_REGISTRY/gabl_admin:latest-stage" .
+    - docker push --all-tags "$CI_REGISTRY/gabl_admin"
+
+deploy-admin-stage:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'main'
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  dependencies:
+    - build-admin-stage
+  script:
+    - kubectl config use-context synapps1/gabl-backend:gabl-agent
+    - sed -i'.bak' "s/\(image\:.*:v\).*/\1-$CI_COMMIT_SHORT_SHA/" ./kubernetes/admin-stage.yml
+    - kubectl apply -f ./kubernetes/admin-stage.yml
+
+build-api-prod:
+  # Use the official docker image.
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == 'main'
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd packages/api
+    - cp $FIREBASE_CONFIG ./config/firebase-config.json
+    - docker pull "$CI_REGISTRY/gabl_api:latest-prod" || true
+    - docker build --pull --cache-from "$CI_REGISTRY/gabl_api:latest-prod" -t "$CI_REGISTRY/gabl_api:v-$CI_COMMIT_TAG" -t "$CI_REGISTRY/gabl_api:latest-prod" .
+    - docker push "$CI_REGISTRY/gabl_api:v-$CI_COMMIT_TAG"
+
+deploy-api-prod:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == 'main'
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  dependencies:
+    - build-api-prod
+  script:
+    - kubectl config use-context synapps1/gabl-backend:gabl-agent
+    - sed -i'.bak' "s/\(image\:.*:v\).*/\1-$CI_COMMIT_TAG/" ./kubernetes/api-prod.yml
+    - kubectl apply -f ./kubernetes/api-prod.yml
+
+build-admin-prod:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == 'main'
+  # Use the official docker image.
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd packages/admin
+    - cp $PROD_ENV_NEXT ./.env
+    - docker pull "$CI_REGISTRY/gabl_admin:latest-prod" || true
+    - docker build --pull --cache-from "$CI_REGISTRY/gabl_admin:latest-prod" -t "$CI_REGISTRY/gabl_admin:v-$CI_COMMIT_TAG" -t "$CI_REGISTRY/gabl_admin:latest-prod" .
+    - docker build -t "$CI_REGISTRY/gabl_admin:v-$CI_COMMIT_TAG" -t "$CI_REGISTRY/gabl_admin:latest-prod" .
+    - docker push "$CI_REGISTRY/gabl_admin:v-$CI_COMMIT_TAG"
+
+deploy-admin-prod:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == 'main'
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  dependencies:
+    - build-admin-prod
+  script:
+    - kubectl config use-context synapps1/gabl-backend:gabl-agent
+    - sed -i'.bak' "s/\(image\:.*:v\).*/\1-$CI_COMMIT_TAG/" ./kubernetes/admin-prod.yml
+    - kubectl apply -f ./kubernetes/admin-prod.yml

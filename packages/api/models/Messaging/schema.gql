@@ -1,0 +1,30 @@
+type FirebaseError {
+  code: String!
+  message: String!
+  stack: String
+}
+
+type FirebaseArrayIndexError {
+  error: FirebaseError!
+  index: Int!
+}
+
+type MessagingTopicManagementResponse {
+  errors: [FirebaseArrayIndexError]
+  failureCount: Int
+  successCount: Int
+}
+
+type SubscribeRespose implements MutationResponse {
+  code: String!
+  success: Boolean!
+
+  message: String
+  firebaseResponse: MessagingTopicManagementResponse
+}
+
+extend type Mutation {
+  "Subscribe device token to all notifications"
+  subscribe(tokens: [String], resubscribe: Boolean): SubscribeRespose
+  unsubscribe(tokens: [String]): SubscribeRespose
+}

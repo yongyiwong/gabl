@@ -1,0 +1,7 @@
+type GetSASResponse {
+  sas: String!
+}
+
+extend type Query {
+  getSAS(blobName: String!, contentType: String!): GetSASResponse
+}

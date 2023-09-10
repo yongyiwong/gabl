@@ -1,0 +1,6 @@
+{
+  "watch": ["models", "config", "middleware", "helpers", "services", "api"],
+  "ext": ".ts,.js,.json,.gql",
+  "ignore": ["package.json", "package-lock.json"],
+  "exec": "yarn gen && node -r dotenv/config --loader ts-node/esm --inspect=127.0.0.1:9229"
+}

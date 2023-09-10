@@ -1,0 +1,12 @@
+@font-face {
+    font-family: 'Dealerplate California';
+    src: url('subset-DealerplateCalifornia-Regular.eot');
+    src: url('subset-DealerplateCalifornia-Regular.eot?#iefix') format('embedded-opentype'),
+        url('subset-DealerplateCalifornia-Regular.woff2') format('woff2'),
+        url('subset-DealerplateCalifornia-Regular.woff') format('woff'),
+        url('subset-DealerplateCalifornia-Regular.ttf') format('truetype'),
+        url('subset-DealerplateCalifornia-Regular.svg#DealerplateCalifornia-Regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+

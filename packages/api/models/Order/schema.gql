@@ -1,0 +1,70 @@
+enum OrderStatus {
+  REQUEST
+  ACCEPT
+  REJECT
+  WITHDRAW
+  COMPLETE
+  EXPIRE
+}
+
+type Order {
+  _id: ObjectId
+  owner: User
+  post: Post
+  user: User
+  body: String
+  status: OrderStatus
+}
+
+input OrderQuery {
+  _id: ObjectId
+  post: ObjectId
+  body: String
+  status: OrderStatus
+}
+
+input CreateOrderInput {
+  post: ObjectId
+  body: String
+  status: OrderStatus
+}
+
+input UpdateOrderInput {
+  _id: ObjectId
+  status: OrderStatus
+}
+
+type CreateUpdateOrderResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  order: Order
+}
+
+input OrderSort {
+  created_at: Int
+}
+
+type DeleteOrderResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+extend type Query {
+  orders(query: OrderQuery, limit: Int, skip: Int, sort: OrderSort): [Order]
+  myOrders(query: OrderQuery, limit: Int, skip: Int, sort: OrderSort): [Order]
+  order(_id: ObjectId!): Order
+  "Useful for pagination"
+  countOrders(query: OrderQuery): Int
+}
+
+extend type Mutation {
+  updateOrder(
+    _id: ObjectId!
+    update: UpdateOrderInput!
+  ): CreateUpdateOrderResponse
+  createOrder(order: CreateOrderInput!): CreateUpdateOrderResponse
+  deleteOrder(_id: ObjectId!): DeleteOrderResponse
+  manualExpire: Boolean
+}

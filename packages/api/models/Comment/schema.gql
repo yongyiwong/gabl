@@ -1,0 +1,59 @@
+type Comment {
+  _id: ObjectId
+  user: User
+  post: Post
+  body: String
+  likes: Int
+  liked: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input CommentQuery {
+  _id: ObjectId
+  user: ObjectId
+  post: ObjectId
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input CommentSort {
+  created_at: Int
+  updated_at: Int
+}
+
+input CreateCommentInput {
+  body: String!
+  post: ObjectId
+}
+
+input UpdateCommentInput {
+  likes: Int
+}
+
+type CreateUpdateCommentResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  comment: Comment
+}
+
+extend type Query {
+  "Any comments of any type, by any common params. Diary Entries are only visible to the user"
+  comments(
+    query: CommentQuery
+    limit: Int
+    skip: Int
+    sort: CommentSort
+  ): [Comment]
+  countComments(query: CommentQuery): Int
+}
+
+extend type Mutation {
+  updateComment(
+    _id: ObjectId!
+    update: UpdateCommentInput!
+  ): CreateUpdateCommentResponse
+  createComment(comment: CreateCommentInput!): CreateUpdateCommentResponse
+  deleteComment(_id: ObjectId!): CreateUpdateCommentResponse
+}

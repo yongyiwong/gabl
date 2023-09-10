@@ -1,0 +1,39 @@
+type Bookmark {
+  _id: ObjectId
+  post: Post
+  user: User
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input BookmarkQuery {
+  user: ObjectId
+}
+
+input CreateDeleteBookmarkInput {
+  "Admins don't control user bookmarks 🙃 Thus, every Bookmarks mutation affects only current user"
+  post: ObjectId
+}
+
+type CreateBookmarkResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  bookmark: Bookmark
+}
+
+type DeleteBookmarkResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  bookmark: Bookmark
+}
+
+extend type Query {
+  bookmarks(query: BookmarkQuery): [Bookmark]
+}
+
+extend type Mutation {
+  createBookmark(bookmark: CreateDeleteBookmarkInput!): CreateBookmarkResponse
+  deleteBookmark(bookmark: CreateDeleteBookmarkInput!): DeleteBookmarkResponse
+}

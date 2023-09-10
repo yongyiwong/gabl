@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  use-forwarded-headers: "true"
+  proxy-body-size: "512m"
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-4.3.0-ingress-nginx-ingress-controller
+  namespace: gabl-ingress

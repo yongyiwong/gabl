@@ -1,0 +1,72 @@
+@import '_variables';
+
+@import '@synappsagency/vue-common/scss/base';
+@import '@synappsagency/vue-common/scss/mixins';
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-mono {
+  font-family: 'Dealerplate California', monospace;
+}
+
+.font-sriracha {
+  font-family: 'Sriracha', sans-serif;
+
+  position: relative;
+
+  @include text-stroke(1px);
+
+  span {
+    position: relative;
+    z-index: 2;
+  }
+
+  &:after {
+    content: ' ';
+    position: absolute;
+    z-index: 1;
+    display: block;
+
+    bottom: 0px;
+    left: 0px;
+
+    width: 0px;
+    height: 16px;
+
+    transition: width 2s ease-out;
+
+    background-image: url('~assets/images/together-underline.svg');
+    background-size: 200px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+  }
+
+  &.visible:after {
+    width: 100%;
+  }
+
+  @include breakpoint-min('lg') {
+    @include text-stroke(2px);
+
+    &:after {
+      bottom: 9px;
+    }
+  }
+}
+
+.container {
+  max-width: 1440px - 240px;
+}
+
+.heart-dot {
+  display: inline-block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+
+  background: url('~assets/images/heart-dot.svg');
+  background-repeat: no-repeat;
+  background-size: 100%;
+}

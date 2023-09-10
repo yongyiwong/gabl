@@ -1,0 +1,54 @@
+scalar ObjectId
+scalar DateTime
+
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+input DateTimeQuery {
+  lt: DateTime
+  gt: DateTime
+  lte: DateTime
+  gte: DateTime
+}
+
+enum MediaType {
+  AUDIO
+  VIDEO
+  PICTURE
+  DOC
+}
+
+type PostMedia {
+  type: MediaType!
+  src: String!
+  filename: String
+  "VIDEO: WebM Processed file path. This should be used on all platforms where WebM is supported"
+  webm: String
+  "VIDEO: duration in seconds, provided by ffprobe"
+  duration: Float
+  "VIDEO: 320x240 thumb. Very small, for lists"
+  thumbSmall: String
+  "VIDEO: 1920x1080 thumb"
+  thumbLarge: String
+}
+
+input PostMediaInput {
+  type: MediaType!
+  src: String!
+  filename: String
+  webm: String
+  duration: Float
+  thumbSmall: String
+  thumbLarge: String
+}
+
+type Query {
+  ping: String
+}
+
+type Mutation {
+  ping: String
+}

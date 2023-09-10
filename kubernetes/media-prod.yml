@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: media-prod
+  name: media-prod
+  namespace: gabl-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: media-prod
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.21.0 ()
+      labels:
+        app: media-prod
+    spec:
+      containers:
+        - env:
+          - name: NODE_ENV
+            value: production
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-prod
+                key: MONGODB_URI
+          - name: FIREBASE_CONFIG
+            valueFrom:
+              secretKeyRef:
+                name: firebase-config
+                key: FIREBASE_CONFIG
+          - name: STORAGE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: azure-storage-key
+                key: STORAGE_KEY
+          - name: STATIC_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: STATIC_CONTAINER
+                name: gabl-prod
+          - name: UPLOADS_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: UPLOADS_CONTAINER
+                name: gabl-prod
+          - name: STORAGE_ACCOUNT_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: STORAGE_ACCOUNT_NAME
+                name: gabl-prod
+          - name: CDN_URL
+            valueFrom:
+              configMapKeyRef:
+                key: CDN_URL
+                name: gabl-prod
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: API_KEY
+                name: api-key
+          image: gabl.azurecr.io/gabl_media:v1.0.0-alpha.4
+          name: media-prod
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+            #   memory: "4G"
+            #   cpu: "2"
+            # limits:
+            #   memory: "4G"
+            #   cpu: "2"
+              memory: "64M"
+              cpu: "100m"
+            limits:
+              memory: "128M"
+              cpu: "100m"
+      nodeSelector:
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: media-prod
+  name: media-prod
+  namespace: gabl-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 3003
+  selector:
+    app: media-prod
+status:
+  loadBalancer: {}

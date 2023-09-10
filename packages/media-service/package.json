@@ -1,0 +1,48 @@
+{
+  "name": "@synappsagency/gabl-media-service",
+  "version": "1.0.0",
+  "description": "Media conversion utilities",
+  "main": "index.js",
+  "author": {
+    "name": "Yurii Sichkovskiy",
+    "email": "yurii@synapps.agency"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "nodemon index.js",
+    "seed": "node ./helpers/seed.js"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.3.0",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dataloader": "^2.0.0",
+    "dotenv": "^8.2.0",
+    "easyimage": "^3.1.1",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "firebase-admin": "^9.6.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "lodash": "^4.17.20",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.11.5",
+    "mongoose-autopopulate": "^0.12.3",
+    "morgan": "^1.10.0",
+    "nanoid": "^3.1.28",
+    "node-wget-js": "^1.0.1"
+  },
+  "devDependencies": {
+    "cli-progress": "^3.9.1",
+    "hplipsum": "^1.0.0",
+    "https": "^1.0.0",
+    "jabber": "^1.2.2",
+    "node-fetch": "2.x",
+    "node-wget-fetch": "^1.1.0",
+    "nodemon": "^2.0.6",
+    "ora": "^6.0.1",
+    "p-limit": "3.1.0"
+  }
+}

@@ -1,0 +1,123 @@
+enum UserRole {
+  ADMIN
+  USER
+}
+
+type Location {
+  type: String!
+  coordinates: [Float]!
+}
+
+type User {
+  _id: ObjectId
+  firebaseId: String
+  blocked: Boolean
+  created_at: DateTime
+  updated_at: DateTime
+  email: String
+  picture: PostMedia
+  fullname: String
+  username: String
+  providerType: String
+  role: UserRole
+  comments: [Comment]
+  bookmarks: [Bookmark]
+  tags: [String]
+  bio: String
+  phoneNumber: TwilioLookupResponse
+  phoneVerified: Boolean
+  signupMethod: String
+  verficationId: PostMedia
+  verifiedId: Boolean
+
+  fcmTokens: [String]
+  point: Int
+  location: Location
+}
+
+input UserQuery {
+  _id: ObjectId
+  firebaseId: String
+  email: String
+  username: String
+  role: [UserRole]
+  search_txt: String
+}
+
+input UserSort {
+  created_at: Int
+  updated_at: Int
+}
+
+type TwilioServiceResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+}
+
+input LocationInput {
+  type: String
+  coordinates: [Float]!
+}
+
+input CreateUserInput {
+  firebaseId: String
+  providerType: String
+  "fullname is now reqired because of Stripe"
+  fullname: String!
+  username: String
+  email: String
+  bio: String
+  picture: PostMediaInput
+  role: UserRole
+  password: String
+  tags: [String]
+  phoneNumber: String
+  verifiedId: Boolean
+  location: LocationInput
+}
+
+input UpdateUserInput {
+  email: String
+  fullname: String
+  username: String
+  providerType: String
+  picture: PostMediaInput
+  role: UserRole
+  bio: String
+  blocked: Boolean
+  password: String
+  tags: [String]
+  phoneNumber: String
+  verficationId: PostMediaInput
+  verifiedId: Boolean
+  location: LocationInput
+}
+
+type UpdateUserResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  user: User
+}
+
+extend type Query {
+  "Get current user"
+  me: User
+  "Get a list of Users"
+  users(query: UserQuery, limit: Int, skip: Int, sort: UserSort): [User]
+  countUsers(query: UserQuery): Int
+  user(_id: ObjectId): User
+  "Get Coaches that can be Article Authors"
+  authors: [User]
+  "Request phone verification code for current user"
+  requestVerifyPhone: MutationResponse
+  nearByUserCount: Int
+}
+
+extend type Mutation {
+  "Update the User. Allowed props are currently `fullname`, `username` and `picture` as per design requirements."
+  updateUser(_id: ObjectId!, update: UpdateUserInput!): UpdateUserResponse
+  "Create a User. Don't know much about Firebase Auth and how user it is handled. I imagine that it needs to be mirrored here in DB to link it to Posts and Quizzes and all that stuff"
+  createUser(user: CreateUserInput): UpdateUserResponse
+}

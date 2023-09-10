@@ -1,0 +1,78 @@
+{
+  "name": "@synappsagency/gabl-admin",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=14",
+    "npm": "8.6.0"
+  },
+  "scripts": {
+    "dev": "PORT=3000 NEXT_DEV=true nodemon index.js",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@apollo/client": "3.3.14",
+    "@azure/storage-blob": "^12.2.1",
+    "@babel/core": "^7.11.6",
+    "@babel/eslint-parser": "^7.11.5",
+    "@date-io/luxon": "1",
+    "@graphql-codegen/typescript": "^2.7.3",
+    "@graphql-codegen/typescript-document-nodes": "^2.3.3",
+    "@graphql-codegen/typescript-resolvers": "^2.7.3",
+    "@material-ui/core": "4.12.3",
+    "@material-ui/icons": "4.11.2",
+    "@material-ui/lab": "4.0.0-alpha.60",
+    "@material-ui/pickers": "^3.3.10",
+    "@typescript-eslint/eslint-plugin": "^4.4.1",
+    "@typescript-eslint/parser": "^4.4.1",
+    "axios": "^0.21.4",
+    "chart.js": "2.9.4",
+    "clsx": "1.1.1",
+    "date-fns": "2.20.0",
+    "deepmerge": "4.2.2",
+    "draft-js": "0.10.5",
+    "draftail": "1.3.0",
+    "emoji-mart": "^3.0.1",
+    "eslint": "^7.7.0",
+    "eslint-plugin-react": "^7.20.6",
+    "firebase": "8.9.1",
+    "flatulence": "^0.2.13",
+    "graphql": "15.5.0",
+    "immutability-helper": "3.1.1",
+    "lodash-es": "4.17.15",
+    "luxon": "^1.21.3",
+    "material-ui-color": "^0.4.8",
+    "material-ui-dropzone": "^3.5.0",
+    "material-ui-image": "^3.3.1",
+    "material-ui-popup-state": "^1.7.1",
+    "mime-types": "2.1.28",
+    "next": "10.0.5",
+    "next-compose-plugins": "^2.2.1",
+    "next-transpile-modules": "^6.0.0",
+    "prop-types": "^15.7.2",
+    "react": "16.14.0",
+    "react-chartjs-2": "^2.11.1",
+    "react-dom": "16.14.0",
+    "react-number-format": "^4.4.4",
+    "react-simple-wysiwyg": "^1.0.1",
+    "styled-components": "5.2.3",
+    "uid-safe": "^2.1.5",
+    "use-firebase-auth": "2.1.4"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.9.35",
+    "@types/material-ui": "0.21.9",
+    "@types/node": "^14.14.13",
+    "@types/react": "16.14.0",
+    "dotenv": "8.2.0",
+    "typescript": "4.3.5"
+  },
+  "peerDependencies": {
+    "graphql": "15.5.0"
+  },
+  "overrides": {
+    "@types/react": "16.14.0",
+    "firebase": "8.9.1"
+  }
+}

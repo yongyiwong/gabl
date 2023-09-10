@@ -1,0 +1,17 @@
+type TwilioLookupCarrier {
+  errorCode: String
+  mobileCountryCode: String
+  mobileNetworkCode: String
+  name: String
+  type: String
+}
+
+type TwilioLookupResponse {
+  callerName: String
+  carrier: TwilioLookupCarrier
+  countryCode: String
+  nationalFormat: String
+  phoneNumber: String
+  addOns: String
+  url: String
+}

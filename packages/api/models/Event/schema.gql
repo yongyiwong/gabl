@@ -1,0 +1,104 @@
+enum EventObjectType {
+  POST_LIKE
+  POST_VIEW
+  COMMENT_LIKE
+  NOTIFICATION_DISMISSED
+  CUSTOM
+}
+
+interface Event {
+  _id: ObjectId
+  user: User
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type PostLike implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type PostView implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type CommentLike implements Event {
+  _id: ObjectId
+  user: User
+  comment: Comment
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type NotificationDismissed implements Event {
+  _id: ObjectId
+  user: User
+  post: Post
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+type CustomEvent implements Event {
+  _id: ObjectId
+  user: User
+  data: String
+  type: EventObjectType
+  created_at: DateTime
+  updated_at: DateTime
+}
+
+input EventQuery {
+  _id: ObjectId
+  user: ObjectId
+  post: ObjectId
+  comment: ObjectId
+  type: EventObjectType
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input CreateDeleteEventInput {
+  _id: ObjectId
+  type: EventObjectType
+  post: ObjectId
+  comment: ObjectId
+  "For progress events"
+  progress: Int
+  "JSON string or whatever you want to put here"
+  data: String
+}
+
+type CreateEventResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  event: Event
+}
+
+type DeleteEventResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  event: Event
+}
+
+extend type Query {
+  events(query: EventQuery): [Event]
+}
+
+extend type Mutation {
+  createEvent(event: CreateDeleteEventInput!): CreateEventResponse
+  deleteEvent(event: CreateDeleteEventInput!): DeleteEventResponse
+}

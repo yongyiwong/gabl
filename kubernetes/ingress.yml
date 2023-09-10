@@ -1,0 +1,136 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 512m
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      # Map directive can't be used here or in server-snippet
+      # so i'm forced to do this weird dance
+      set $is_desktop 0;
+      set $is_dynamic 0;
+      # Desktop user agents
+      if ( $http_user_agent ~* windows|linux|os\s+x\s*[\d\._]+|solaris|bsd ) {
+        set $is_desktop 1;
+      }
+      # Bots
+      if ( $http_user_agent ~* spider|crawl|slurp|bot ) {
+        set $is_desktop 1;
+      }
+      # Exceptions to desktop rules
+      if ( $http_user_agent ~* linux.*android|windows\s+(?:ce|phone) ) {
+        set $is_desktop 0;
+      }
+
+      if ( $request_uri ~ /dynamic/(?<query>.*) ) {
+        set $is_dynamic 1;
+        set $q "$query";
+      }
+
+      if ( $is_dynamic ) {
+        return 301 https://dynamic.gabl.global/$q;
+      }
+  name: gabl-ingress
+  namespace: gabl-ingress
+  labels:
+    app: ingress
+spec:
+  tls:
+    - hosts:
+        - gabl.global
+        - www.gabl.global
+        - api.gabl.global
+        - admin.gabl.global
+        - media.gabl.global
+        - stage-api.gabl.global
+        - stage-admin.gabl.global
+      secretName: gabl-tls
+  rules:
+    - host: stage-api.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: api-stage
+              port:
+                number: 80
+    - host: stage-admin.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: admin-stage
+              port:
+                number: 80
+    - host: api.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: api-prod
+              port:
+                number: 80
+    - host: admin.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: admin-prod
+              port:
+                number: 80
+
+    - host: media.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: media-prod
+              port:
+                number: 80
+
+    - host: gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: landing-prod
+              port:
+                number: 80
+
+    - host: www.gabl.global
+      http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: landing-prod
+              port:
+                number: 80
+
+    # Default
+    - http:
+        paths:
+        - path: /(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: admin-prod
+              port:
+                number: 80

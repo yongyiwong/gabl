@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: api-stage
+  name: api-stage
+  namespace: gabl-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-stage
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.21.0 ()
+      labels:
+        app: api-stage
+    spec:
+      containers:
+        - env:
+          - name: NODE_ENV
+            value: production
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-stage
+                key: MONGODB_URI
+          - name: FIREBASE_CONFIG
+            valueFrom:
+              secretKeyRef:
+                name: firebase-config
+                key: FIREBASE_CONFIG
+          - name: STORAGE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: azure-storage-key
+                key: STORAGE_KEY
+          - name: STATIC_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: STATIC_CONTAINER
+                name: gabl-stage
+          - name: UPLOADS_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: UPLOADS_CONTAINER
+                name: gabl-stage
+          - name: STORAGE_ACCOUNT_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: STORAGE_ACCOUNT_NAME
+                name: gabl-stage
+          - name: TWILIO_ACCOUNT_SID
+            valueFrom:
+              configMapKeyRef:
+                key: TWILIO_ACCOUNT_SID
+                name: gabl-stage
+          - name: LEGACY_SITE_URL
+            valueFrom:
+              configMapKeyRef:
+                key: LEGACY_SITE_URL
+                name: gabl-stage
+          - name: WOOCOMMERCE_KEY
+            valueFrom:
+              configMapKeyRef:
+                key: WOOCOMMERCE_KEY
+                name: gabl-stage
+          - name: WOOCOMMERCE_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: WOOCOMMERCE_SECRET
+                name: woocommerce-secret
+          - name: TWILIO_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: TWILIO_AUTH_TOKEN
+                name: twilio-token-stage
+          - name: CDN_URL
+            valueFrom:
+              configMapKeyRef:
+                key: CDN_URL
+                name: gabl-stage
+          # - name: PLAY_SERVICE_ACCOUNT_PRIVATE_KEY
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: play-service-key
+          #       key: PLAY_SERVICE_ACCOUNT_PRIVATE_KEY
+          # - name: PLAY_SERVICE_ACCOUNT_EMAIL
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       key: PLAY_SERVICE_ACCOUNT_EMAIL
+          #       name: gabl-prod
+          # - name: PLAY_AUTH_PUBLISHER
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       key: PLAY_AUTH_PUBLISHER
+          #       name: gabl-prod
+          # - name: ANDROID_PACKAGE_NAME
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       key: ANDROID_PACKAGE_NAME
+          #       name: gabl-prod
+          - name: IAP_TEST_MODE
+            valueFrom:
+              configMapKeyRef:
+                key: IAP_TEST_MODE
+                name: gabl-stage
+          # - name: APPLE_SHARED_SECRET
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       key: APPLE_SHARED_SECRET
+          #       name: gabl-prod
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: API_KEY
+                name: api-key
+          image: gabl.azurecr.io/gabl_api:v1.0.0-alpha.10
+          name: api-stage
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              memory: "160M"
+              cpu: "150m"
+            limits:
+              memory: "250M"
+              cpu: "200m"
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: api-stage
+  name: api-stage
+  namespace: gabl-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 3001
+  selector:
+    app: api-stage
+status:
+  loadBalancer: {}

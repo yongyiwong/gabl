@@ -1,0 +1,43 @@
+type Tag {
+  _id: ObjectId
+  slug: String
+  displayName: String
+  order: Int
+  created_at: DateTime
+  updated_at: DateTime
+  posts: [Post]
+}
+
+input TagQuery {
+  _id: ObjectId
+  slug: String
+  all: Boolean
+  created_at: DateTimeQuery
+  updated_at: DateTimeQuery
+}
+
+input TagSort {
+  created_at: Int
+}
+
+input CreateTagInput {
+  slug: String
+  displayName: String
+  order: Int
+}
+
+type CreateTagResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String
+  tag: Tag
+}
+
+extend type Query {
+  tags(query: TagQuery, limit: Int, skip: Int, sort: TagSort): [Tag]
+}
+
+extend type Mutation {
+  createTag(tag: CreateTagInput!): CreateTagResponse
+  deleteTag(_id: ObjectId): CreateTagResponse
+}

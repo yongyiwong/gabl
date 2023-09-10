@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: landing-prod
+  name: landing-prod
+  namespace: limitlessminds-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: landing-prod
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.21.0 ()
+      labels:
+        app: landing-prod
+    spec:
+      containers:
+        - env:
+          - name: NODE_ENV
+            value: production
+          image: limitlessminds.azurecr.io/limitlessminds_landing:v1.1.1-rc.1
+          name: landing-prod
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              memory: "64M"
+              cpu: "100m"
+            limits:
+              memory: "128M"
+              cpu: "100m"
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: landing-prod
+  name: landing-prod
+  namespace: limitlessminds-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 3004
+  selector:
+    app: landing-prod
+status:
+  loadBalancer: {}

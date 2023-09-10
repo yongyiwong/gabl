@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: api-prod
+  name: api-prod
+  namespace: gabl-ingress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-prod
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.21.0 ()
+      labels:
+        app: api-prod
+    spec:
+      containers:
+        - env:
+          - name: NODE_ENV
+            value: production
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: mongodb-prod
+                key: MONGODB_URI
+          - name: STORAGE_KEY
+            valueFrom:
+              secretKeyRef:
+                name: storage-key
+                key: STORAGE_KEY
+          - name: STATIC_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: STATIC_CONTAINER
+                name: gabl-prod
+          - name: UPLOADS_CONTAINER
+            valueFrom:
+              configMapKeyRef:
+                key: UPLOADS_CONTAINER
+                name: gabl-prod
+          - name: STORAGE_ACCOUNT_NAME
+            valueFrom:
+              configMapKeyRef:
+                key: STORAGE_ACCOUNT_NAME
+                name: gabl-prod
+          - name: LANDING_URL
+            valueFrom:
+              configMapKeyRef:
+                key: LANDING_URL
+                name: gabl-prod
+          - name: CDN_URL
+            valueFrom:
+              configMapKeyRef:
+                key: CDN_URL
+                name: gabl-prod
+          - name: IAP_TEST_MODE
+            valueFrom:
+              configMapKeyRef:
+                key: IAP_TEST_MODE
+                name: gabl-prod
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: API_KEY
+                name: api-key
+          image: gabldock.azurecr.io/gabl_api:v0.0.0
+          name: api-prod
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              memory: "160M"
+              cpu: "150m"
+            limits:
+              memory: "250M"
+              cpu: "200m"
+      restartPolicy: Always
+      serviceAccountName: ""
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.21.0 ()
+  labels:
+    app: api-prod
+  name: api-prod
+  namespace: gabl-ingress
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      targetPort: 3001
+  selector:
+    app: api-prod
+status:
+  loadBalancer: {}

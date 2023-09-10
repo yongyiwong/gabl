@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gabl-stage
+  namespace: gabl-ingress
+data:
+  STATIC_CONTAINER: static
+  UPLOADS_CONTAINER: uploads
+  STORAGE_ACCOUNT_NAME: gabl
+  WEB_URL: 'https://stage-admin.gabl.global'
+  API_URL: 'https://stage-api.gabl.global/graphql'
+  LANDING_URL: 'https://gabl.global'
+  MEDIASERVICE_URL: 'https://media.gabl.global'
+  STORAGE_URL: 'https://gabl.blob.core.windows.net'
+  CDN_URL: 'https://gabl.azureedge.net'
+  IAP_TEST_MODE: 'true'

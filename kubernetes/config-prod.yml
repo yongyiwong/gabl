@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gabl-prod
+  namespace: gabl-ingress
+data:
+  STATIC_CONTAINER: static
+  UPLOADS_CONTAINER: uploads
+  STORAGE_ACCOUNT_NAME: gabl
+  WEB_URL: 'https://admin.gabl.world'
+  API_URL: 'https://api.gabl.world/graphql'
+  LANDING_URL: 'https://gabl.global'
+  STORAGE_URL: 'https://gabl.blob.core.windows.net'
+  MEDIASERVICE_URL: 'https://media.gabl.app'
+  CDN_URL: 'https://gabl.azureedge.net'
+  IAP_TEST_MODE: 'true'
